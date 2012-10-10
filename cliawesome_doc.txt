@@ -1,7 +1,4 @@
-cliawesome
-==========
-
-Ruby Command line argument parsing and config file resolverCLI Conf
+CLI Conf
 
 CLIconf is a lightweight way to manage configuration options and parameters that may appear in either a config file or be specified as commandline arguments. The idea is to read in a config file with all the mandatory confg-options set, then override them if the user specifies different args on the commandline. The config file's location can be given explicitly by the user on the command line, but if none is given the developer can dictate if the file is looked for in the user's home directory or to traverse up the directory tree looking for the first file it finds with the default config-file name (like how Ant searches for a build.xml file to use). The config file's are YAML, but all options are present in the files with the unused ones commented out (editing the config files doesn't require knowledge of YAML, what to cut and paste is obvious). 
 
