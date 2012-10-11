@@ -1,0 +1,42 @@
+# NavelGazer 
+# This awesome demo prints out the values of it's arguments. Below 
+# are the individual options. 
+
+---
+###############
+## Verbosity ##
+###############
+## How much info to print during execution 
+## + This option may be left unspecified.
+## + It may be set here or on the command line.
+## * Valid arguments for verbosity are [verbose, quiet] 
+
+#verbosity: verbose
+verbosity: quiet
+
+
+#####################
+## Switch Option A ##
+#####################
+## This is a pretty cool example of an option that can be one of 
+## several values 
+## + This option may be left unspecified.
+## + It may be set here or on the command line.
+## * Valid arguments for switchA are [switchA_case2, switchA_case1] 
+
+#switchA: switchA_case2
+switchA: switchA_case1
+
+
+####################
+## Value Option C ##
+####################
+## The long form documetation of option C 
+## + This option may be left unspecified.
+## + It can only be set by a config file.
+
+#valueC:
+# - blue
+# - green
+
+
