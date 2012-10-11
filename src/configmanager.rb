@@ -40,6 +40,11 @@ class ConfigDef
 		return @commandeLineManager
 	end
 
+	#only meaningful after deduceOptions has been called
+	def isAdminRun()
+		return (getArgumentHash().nil?)
+	end
+
 	def deduceOptions(commandLineArgs)
 
 		#create optionHash of those options present on the commandline
