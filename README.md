@@ -10,6 +10,11 @@ Ruby Command line argument parsing and config file resolver
    the app with the -h option.
  - Generates a config file with all possible parameters set, but commented
    out.
+ - Parameters are first set as defaults, then overwritten by any values in
+   the config file, then overwritten by any commandline arguments
+ - Parameters values defined by the user are returned in a hash map of
+   strings values (and keys that are whatever were used in the 
+   hardcoded parameter definitions).
 
 
 ##Basics##
@@ -95,13 +100,22 @@ characteristics:
    and cliawesome would end up providing all the .html and .css files in any
    subdirectory of the current directory to myLittleApp when it requested the
    filename-expanded openList.
+
+##Builtin Options##
+
+ - *Verbose (-v)* if set, cliawesome will print out all the parameter values
+ it has gathered from the commandline and config file. Can also be -q for
+ "quiet".
+
+ - *Generate Config (-gt)* creates a config file with option descriptions 
+ as comments, and default values if supplied by the developer.
  
 ##Other Behaviours##
 
 Finding the config file. If there are no mandatory, config-file-only
 options, then the config-file is not necessary but can still be looked for.
 The developer dictates what the default name for a config-file is
-(convention is appName.yaml), and where to look for it. The options for
+(convention is appName.yml), and where to look for it. The options for
 where to look are the user's home directory, or to traverse up the
 directory tree from the current-working-directory and using the first
 encountered filename with the default config-file name. The developer can
@@ -132,13 +146,12 @@ set by the end user.
 
    > \> ./navelgazer.rb -b * 
 
-   > 
-	Switch A was set to Case 1
-	Switch B is On
-	Values for C are: [blue, green]
-	The open_list values are:
-	 - navelgazer
-	 - navelgazer.yml
+	>	Switch A was set to Case 1
+	>	Switch B is On
+	>	Values for C are: [blue, green]
+	>	The open_list values are:
+	>	 - navelgazer
+	>	 - navelgazer.yml
 
 
    > \> ./navelgazer.rb
