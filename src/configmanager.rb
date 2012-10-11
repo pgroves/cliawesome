@@ -20,6 +20,7 @@ class ConfigDef
 		@commandLineManager = clManager
 		@configFileManager = yamlManager
 		@loudness = :quiet
+		@isAdminRun = false
 
 		initBuiltinOptions()
 	end
@@ -42,7 +43,7 @@ class ConfigDef
 
 	#only meaningful after deduceOptions has been called
 	def isAdminRun()
-		return (getArgumentHash().nil?)
+		return @isAdminRun
 	end
 
 	def deduceOptions(commandLineArgs)
@@ -62,10 +63,12 @@ class ConfigDef
 		#check for cliawesome options that divert control flow
 		if(clOptionHash.include?(:help))
 			printCommandLineHelp()
+			@isAdminRun = true
 			return
 		end
 		if(clOptionHash.include?(:genConfig))
 			@configFileManager.generateConfigFile(@name, @mainSummary, @optionDefs)
+			@isAdminRun = true
 			return
 		end
 
