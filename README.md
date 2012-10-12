@@ -1,20 +1,21 @@
 #cliawesome#
 
-Ruby Command line argument parsing and config file resolver
+Ruby command line arguments, config file, and documentation engine. For building
+properly documented command line applications with config files in ruby.
 
 ##Overview##
 
  - Focuses on documentation of the app created
  - Parameters can be specified in a YAML config file or on the commandline
- - Autogenerates a nice man-page style help screen when the end user runs
-   the app with the -h option.
- - Generates a config file with all possible parameters set, but commented
-   out.
+ - Generates a nice man-page style help screen when the end user runs
+   the app with the -h option. [Here's one generated for the example app.](https://gist.github.com/3874687)
+ - Generates a nicely documented config file with all possible parameters set, but commented
+   out. [Here's one generated for the example app](https://gist.github.com/3874687)
  - Parameters are first set as defaults, then overwritten by any values in
    the config file, then overwritten by any commandline arguments
- - Parameters values defined by the user are returned in a hash map of
-   strings values (and keys that are whatever were used in the 
-   hardcoded parameter definitions).
+ - Final values are returned in a hash map of strings values.
+ - Also returns an "open list" of any trailing arguments on the commandline. This
+   contains any wildcard expansions the shell may do.
 
 
 ##Basics##
@@ -24,13 +25,12 @@ that may appear in either a config file or be specified as commandline
 arguments. The idea is to read in a config file with all the mandatory
 confg-options set, then override them if the user specifies different args on
 the commandline. The config file's location can be given explicitly by the user
-on the command line, but if none is given the developer can dictate if the file
+on the command line. However, if not specified, the developer can dictate if the file
 is looked for in the user's home directory or to traverse up the directory tree
-looking for the first file it finds with the default config-file name (like how
-Ant searches for a build.xml file to use). The config file's are YAML, but all
-options are present in the files with the unused ones commented out (editing
-the config files doesn't require knowledge of YAML, what to cut and paste is
-obvious). 
+looking for the first file it finds with a given name (like my_app_config.yml). 
+The config file's are YAML, but all
+options are present in the generated template files, with the unused options
+commented out so the user doesn't really need to understand YAML.
 
 To disambguate configuration units here from Ruby's built in arguments
 (ARGV's), we call them Options. Before worrying about API specifics, lets talk
@@ -42,25 +42,23 @@ characteristics:
  
  - *Defaultable*: The Option is required, but there is a developer specified
    default. This includes flags/switches, that are one of several possible
-   values.  NOTE: We don't bother calling any Options truly "optional", as
-   there is always some type of default value - switches can be "false", lists
-   of files can be an empty list, etc.
+   values.  
    
  - *Switches*: Options without an associated value are switches. All switches
    are XOR style, which means there are several predefined possible values for
    a switch. The implication is that simple boolean flags are really Switches
-   with one of two values. Most obvious example is --verbose and --quiet, which
-   negate each other. The order of precedence when multiple switches are given
-   is last on commandline, last in config file. (That is, commandline args
+   with one of two values. Most obvious example is Verbosity, with
+   flags --verbose and --quiet, which negate each other. 
+   When multiple values for one switch are encountered, commandline args
    override config file settings, and the most recent on either is given
-   precedence over that respective set.)
+   precedence over that respective set.
  
  - *Have values*: If an option needs N values they are assumed to be the N
    tokens after the option is given on the commandline. Such Options *cannot*
    have a variable number of inputs. Only the Open List (discussed below) can
    have a variable number of options.  CLIAwesome does not use equal signs "="
    to bind a value to an Option on the commandline. There is a builtin option
-   that uses this, the "-f" / "--config-file" Option which specifies where the
+   that uses this, the "--config-file" Option takes one value, which specifies where the
    config file is from the commandline. For example, the useage could end up
    looking like 
    
@@ -68,25 +66,17 @@ characteristics:
    
    to specify the config file "some\_config.yaml" and turn verbose on.
 
- - *Config File Only*: Some options can only be specified in a config file.
-   Usually this is good idea if there are several options whose acceptable
-   values depend on what the other Options are set to, and the chances of the
-   user making an error on the commandline are high.
+ - *Config File Only*: The developer can tell cliawesome that an
+    option should only be specified in a config file.   
  
- - *Command Line Only*: Some options are not really "global" options for the
-   application so it doesn't make sense to include them in a config file. For
-   instance, if you create an app that creates a tarball given the name
-   of a directory, you wouldn't put the name of the target directory in a 
-   config file in your home directory.
+ - *Command Line Only*: Same idea as "Config File Only." 
 
  - *Open List*: After all the options declared by the developer have been read
    in on the commandline, anything else goes into an "Open List", which means
    it can have any number of values, and you don't have to put it in
    parenthesis and separate them by commas or anything like that. Because it
    sucks up any leftover commandline arguments, there is always exactly one
-   Open List, but it may be of length zero.  This is for behaviour such as how
-   the "tar" utility works, where you specify your options, the output
-   filename, and then list as many files or directories as you want to tar up.
+   Open List, but it may be of any length (including zero length).  
  
  - *Open File List*: A convenience method of the Open List is provided for apps
    whose open list is a list of filenames. If the Open List is treated as a
@@ -109,18 +99,25 @@ characteristics:
 
  - *Generate Config (-gt)* creates a config file with option descriptions 
  as comments, and default values if supplied by the developer.
- 
-##Other Behaviours##
 
-Finding the config file. If there are no mandatory, config-file-only
+ - *Print Help (-h)* print a help screen and exit.
+ 
+##Finding the config file##
+
+If there are no mandatory, config-file-only
 options, then the config-file is not necessary but can still be looked for.
 The developer dictates what the default name for a config-file is
 (convention is appName.yml), and where to look for it. The options for
-where to look are the user's home directory, or to traverse up the
-directory tree from the current-working-directory and using the first
-encountered filename with the default config-file name. The developer can
-also dictate to not use config files at all. Of course, the user can
-over-ride this location by directly specifying the location of the config
+where to look are
+
+1. User's home directory
+2. Traverse up the directory tree from the current-working-directory and using the first
+encountered filename with the default config-file name. 
+3. Fixed Location. For instance, you may put a standard config file in /usr/share/myApp.
+3. None (don't look for a config file).
+
+Of course, the user can
+over-ride the location specified by the developer by directly specifying the location of the config
 file on the commandline using the "-f" option when the app is run. 
  	
  	
@@ -171,3 +168,10 @@ The resulting navelgazer.yml can be seen here: https://gist.github.com/3874659
 </pre>
 
 The resulting help page from running with the help option is here: https://gist.github.com/3874687
+
+##Dependencies##
+
+cliawesome is pure Ruby and only relies on the text/highlight gem to do bold and underlining on the
+commandline.
+
+    > gem install text-highlight
